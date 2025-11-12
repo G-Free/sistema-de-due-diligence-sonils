@@ -34,7 +34,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                          <img src={sonilsLogoBase64} alt="SONILS Logo" className="h-12"/>
                     </div>
                     <div>
-                        <h1 className="text-4xl font-bold leading-tight">Plataforma Integrada de Due Diligence</h1>
+                        <h1 className="text-4xl font-bold leading-tight">Plataforma de Due Diligence</h1>
                         <p className="mt-4 text-lg text-gray-200">Gestão de Risco de Terceiros, simplificada e inteligente.</p>
                     </div>
                      <p className="text-sm text-gray-300">© {new Date().getFullYear()} SONILS, S.A. Todos os direitos reservados.</p>
