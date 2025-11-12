@@ -31,7 +31,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             >
                 <div className="bg-primary/90 w-full h-full flex flex-col justify-between p-12 text-white">
                     <div>
-                         <img src={sonilsLogoBase64} alt="SONILS Logo" className="h-12"/>
+                         
                     </div>
                     <div>
                         <h1 className="text-4xl font-bold leading-tight">Plataforma de Due Diligence</h1>
