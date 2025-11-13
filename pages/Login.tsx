@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MailIcon } from '../components/icons/MailIcon';
+import logo from '../conteudos/imagem/SONILS_logo_with_text (1).png';
 import { LockIcon } from '../components/icons/LockIcon';
 
 interface LoginProps {
@@ -26,9 +27,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         <div className="min-h-screen flex bg-background text-text-main">
             {/* Painel Esquerdo - Branding */}
             <div 
-                className="hidden lg:flex w-1/2 bg-cover bg-center" 
-                style={{ backgroundImage: `href('/conteudos/imagem/SONILS_logo_with_text (1).png')` }}
-            >
+                className="hidden lg:flex w-1/2 bg-cover bg-center" style={{ backgroundImage: `url(${logo})` }}>
                 <div className="bg-primary/90 w-full h-full flex flex-col justify-between p-12 text-white">
                     <div>
                     </div>
