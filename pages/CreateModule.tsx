@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ModuleChangeProps } from '../types';
+import { useToast } from '../components/useToast';
 
 const CreateModule: React.FC<ModuleChangeProps> = ({ onModuleChange, setIsFormDirty }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [targetAudience, setTargetAudience] = useState('');
     const isInitialMount = useRef(true);
+    const { addToast } = useToast();
 
     useEffect(() => {
         if (!setIsFormDirty) return;
@@ -27,7 +29,7 @@ const CreateModule: React.FC<ModuleChangeProps> = ({ onModuleChange, setIsFormDi
         if (setIsFormDirty) setIsFormDirty(false);
         // In a real app, this would save the new module
         console.log({ title, description, targetAudience });
-        alert('Módulo de treinamento criado com sucesso (simulação).');
+        addToast('Módulo de treinamento criado com sucesso!', 'success');
         onModuleChange('training');
     };
 

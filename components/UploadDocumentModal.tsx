@@ -1,27 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DocumentStatus } from '../types';
 
 interface UploadDocumentModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpload: (document: { name: string; status: DocumentStatus }) => void;
+  suggestedDocs: string[];
 }
 
-const documentTypes = [
-  'Alvará Comercial',
-  'Certidão Comercial',
-  'Declaração Fiscal AGT',
-  'Apólices de Seguro',
-  'Certidão de Não Dívida (INSS)',
-  'Relatório de Contas',
-  'Certificação ISO 9001',
-  'Licença de Operador',
-];
-
-const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({ isOpen, onClose, onUpload }) => {
-  const [docType, setDocType] = useState(documentTypes[0]);
+const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({ isOpen, onClose, onUpload, suggestedDocs }) => {
+  const [docType, setDocType] = useState(suggestedDocs[0] || '');
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isCustom, setIsCustom] = useState(false);
+  const [customDocName, setCustomDocName] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+        setDocType(suggestedDocs[0] || '');
+        setFile(null);
+        setIsUploading(false);
+        setIsCustom(false);
+        setCustomDocName('');
+    }
+  }, [isOpen, suggestedDocs]);
+
 
   if (!isOpen) return null;
 
@@ -30,15 +33,31 @@ const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({ isOpen, onClo
       setFile(e.target.files[0]);
     }
   };
+  
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    if (value === 'outro') {
+        setIsCustom(true);
+        setDocType('');
+    } else {
+        setIsCustom(false);
+        setDocType(value);
+    }
+  };
 
   const handleSubmit = () => {
     if (!file) return;
+    const finalDocName = isCustom ? customDocName : docType;
+    if (!finalDocName.trim()) {
+        alert("Por favor, especifique o nome do documento.");
+        return;
+    }
+
     setIsUploading(true);
-    // Simulate upload delay
     setTimeout(() => {
       onUpload({
-        name: docType,
-        status: 'Recebido', // New documents are marked as 'Recebido'
+        name: finalDocName,
+        status: 'Recebido',
       });
       setIsUploading(false);
       onClose();
@@ -46,7 +65,7 @@ const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({ isOpen, onClo
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center" onClick={onClose}>
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex justify-center items-center" onClick={onClose}>
       <div className="bg-card rounded-lg shadow-xl p-8 w-full max-w-lg animate-fade-in-up" onClick={e => e.stopPropagation()}>
         <h2 className="text-2xl font-bold text-primary mb-4">Carregar Novo Documento</h2>
         <div className="space-y-6">
@@ -54,12 +73,22 @@ const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({ isOpen, onClo
             <label htmlFor="docType" className="block text-sm font-medium text-text-secondary mb-1">Tipo de Documento</label>
             <select
               id="docType"
-              value={docType}
-              onChange={(e) => setDocType(e.target.value)}
+              value={isCustom ? 'outro' : docType}
+              onChange={handleSelectChange}
               className="w-full bg-background border border-border rounded-lg p-2.5 text-text-main focus:ring-2 focus:ring-secondary focus:outline-none"
             >
-              {documentTypes.map(type => <option key={type} value={type}>{type}</option>)}
+              {suggestedDocs.map(type => <option key={type} value={type}>{type}</option>)}
+              <option value="outro">Outro...</option>
             </select>
+            {isCustom && (
+                 <input
+                    type="text"
+                    value={customDocName}
+                    onChange={(e) => setCustomDocName(e.target.value)}
+                    placeholder="Especifique o nome do documento"
+                    className="mt-2 w-full bg-background border border-border rounded-lg p-2.5 text-text-main focus:ring-2 focus:ring-secondary focus:outline-none"
+                />
+            )}
           </div>
           <div>
             <label htmlFor="fileUpload" className="block text-sm font-medium text-text-secondary mb-1">Ficheiro</label>
@@ -88,7 +117,7 @@ const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({ isOpen, onClo
           <button onClick={onClose} className="bg-gray-200 hover:bg-gray-300 text-text-main font-semibold py-2 px-4 rounded-lg">Cancelar</button>
           <button
             onClick={handleSubmit}
-            disabled={!file || isUploading}
+            disabled={!file || isUploading || (isCustom && !customDocName.trim())}
             className="bg-primary hover:bg-primary-hover text-white font-semibold py-2 px-6 rounded-lg disabled:bg-gray-400"
           >
             {isUploading ? 'A carregar...' : 'Carregar'}

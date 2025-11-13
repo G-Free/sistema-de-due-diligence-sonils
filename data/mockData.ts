@@ -1,5 +1,4 @@
-
-import { Entity, RiskLevel, LegalStatus, EntityType, QuizQuestion, ApprovalQueueItem, Notification, Document, ApprovalStatus, User, HistoryItem, TrainingModule, DocumentItem, Integration, Campaign, ActionPlan, AuditLog } from '../types';
+import { Entity, RiskLevel, LegalStatus, EntityType, QuizQuestion, ApprovalQueueItem, Notification, Document, ApprovalStatus, User, HistoryItem, TrainingModule, DocumentItem, Integration, Campaign, ActionPlan, AuditLog, AssessmentRequest } from '../types';
 
 export let mockUsers: User[] = [
   { id: 'u1', name: 'Administrador SONILS', email: 'admin@sonils.co.ao', role: 'Administrador', password: 'sonils2024' },
@@ -275,7 +274,7 @@ export let mockApprovalQueue: ApprovalQueueItem[] = [
   },
 ];
 
-export const mockHistory: HistoryItem[] = [
+export let mockHistory: HistoryItem[] = [
     { 
         id: 'h1', 
         sequenceNumber: 'AVR-2024-004',
@@ -435,4 +434,100 @@ export const mockAuditLogs: AuditLog[] = [
   { id: 'log4', user: 'Administrador SONILS', action: 'Gestão de Integrações', timestamp: '2024-07-30 11:20:05', details: "Desativou a integração 'African Union (AU) List'." },
   { id: 'log5', user: 'Técnico de Compliance', action: 'Login', timestamp: '2024-08-02 09:00:12', details: 'Login bem-sucedido no sistema.' },
   { id: 'log6', user: 'Administrador SONILS', action: 'Alteração de Template', timestamp: '2024-07-29 14:05:45', details: "Adicionou a questão 'A empresa possui certificação de segurança?' ao critério 'Governança' no template 'Entidade Particular'." },
+];
+
+export let mockAssessmentRequests: AssessmentRequest[] = [
+  {
+    id: 'req1',
+    requesterEmail: 'gestor.projetos@sonils.co.ao',
+    requestDate: '2024-08-05',
+    status: 'Pendente',
+    emailBody: `De: gestor.projetos@sonils.co.ao
+Para: compliance@sonils.co.ao
+Assunto: Solicitação de Due Diligence - DrillTech Angola
+
+Prezados,
+
+Gostaria de solicitar o início do processo de due diligence para um novo fornecedor potencial, a DrillTech Angola.
+
+Recebemos uma proposta para serviços de perfuração e manutenção de poços e eles parecem promissores.
+
+Dados do fornecedor:
+- Nome: DrillTech Angola
+- NIF: 5000987654
+- Email: comercial@drilltech.co.ao
+- Telefone: +244 923 111 222
+
+Agradeço a vossa atenção.
+
+Cumprimentos,
+Gestor de Projetos`,
+    supplierData: {
+      name: 'DrillTech Angola',
+      nif: '5000987654',
+      email: 'comercial@drilltech.co.ao',
+      phone: '+244 923 111 222',
+      services: 'Perfuração e Manutenção de Poços',
+    }
+  },
+  {
+    id: 'req2',
+    requesterEmail: 'compras@sonils.co.ao',
+    requestDate: '2024-08-03',
+    status: 'Pendente',
+    emailBody: `De: compras@sonils.co.ao
+Para: compliance@sonils.co.ao
+Assunto: Novo Fornecedor para Avaliação - Luanda Catering Services
+
+Bom dia,
+
+Por favor, iniciar a avaliação de risco para a empresa Luanda Catering Services, que estamos a considerar para fornecer serviços de catering para as nossas plataformas.
+
+Informações de contacto:
+- Nome: Luanda Catering Services
+- NIF: 5000112233
+- Email: info@lcs.co.ao
+- Telefone: +244 912 333 444
+
+Obrigado,
+Departamento de Compras`,
+    supplierData: {
+      name: 'Luanda Catering Services',
+      nif: '5000112233',
+      email: 'info@lcs.co.ao',
+      phone: '+244 912 333 444',
+      services: 'Serviços de Catering para Plataformas',
+    }
+  },
+  {
+    id: 'req3',
+    requesterEmail: 'ti@sonils.co.ao',
+    requestDate: '2024-08-01',
+    status: 'Em Processo',
+    emailBody: `De: ti@sonils.co.ao
+Para: compliance@sonils.co.ao
+Assunto: URGENTE: Avaliação de Fornecedor de Cibersegurança
+
+Caros Colegas,
+
+Necessitamos de uma avaliação urgente para a CyberSec Lda. Estamos a ponderar contratá-los para uma consultoria crítica em cibersegurança.
+
+Seguem os dados:
+- Nome: CyberSec Lda
+- NIF: 5000445566
+- Email: contact@cybersec.co.ao
+- Telefone: +244 934 555 666
+
+Obrigado pela vossa celeridade.
+
+Atenciosamente,
+Departamento de TI`,
+    supplierData: {
+      name: 'CyberSec Lda',
+      nif: '5000445566',
+      email: 'contact@cybersec.co.ao',
+      phone: '+244 934 555 666',
+      services: 'Consultoria em Cibersegurança',
+    }
+  },
 ];

@@ -5,6 +5,9 @@ import { mockEntities, mockHistory, mockApprovalQueue } from '../data/mockData';
 import HistoryDetailModal from '../components/HistoryDetailModal';
 import { criteriaMatrix } from '../data/matrixData'; // Import the dynamic matrix
 import { WarningIcon } from '../components/icons/WarningIcon';
+import { useToast } from '../components/useToast';
+import AddEntityModal from '../components/AddEntityModal';
+import { PlusIcon } from '../components/icons/PlusIcon';
 
 const evaluationOptions = ['A - Favorável', 'C - Não Favorável', 'D - Pendente'];
 
@@ -67,16 +70,27 @@ const DetailRow: React.FC<{
   </tr>
 );
 
-const RiskAssessment: React.FC<ModuleChangeProps> = ({ onModuleChange, setIsFormDirty }) => {
-  const [view, setView] = useState<'history' | 'form'>('history');
-  const [selectedEntityId, setSelectedEntityId] = useState<string>('1');
+interface RiskAssessmentProps extends ModuleChangeProps {
+  initialView?: 'history' | 'form';
+  selectedId?: string;
+  setIsFormDirty?: (isDirty: boolean) => void;
+}
+
+const RiskAssessment: React.FC<RiskAssessmentProps> = ({ onModuleChange, setIsFormDirty, initialView, selectedId }) => {
+  const [view, setView] = useState<'history' | 'form'>(initialView || 'history');
+  const [selectedEntityId, setSelectedEntityId] = useState<string>(selectedId || '1');
   const selectedEntity = useMemo(() => mockEntities.find(e => e.id === selectedEntityId)!, [selectedEntityId]);
 
   const [nameQuery, setNameQuery] = useState('');
   const [nifQuery, setNifQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Entity[]>([]);
-  const [activeSearch, setActiveSearch] = useState<'name' | 'nif' | null>(null);
+  
+  const [nameSearchResults, setNameSearchResults] = useState<Entity[]>([]);
+  const [nifSearchResults, setNifSearchResults] = useState<Entity[]>([]);
+  const [isNameDropdownOpen, setIsNameDropdownOpen] = useState(false);
+  const [isNifDropdownOpen, setIsNifDropdownOpen] = useState(false);
+  
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const { addToast } = useToast();
   
   const pristineState = useRef<string | null>(null);
 
@@ -94,6 +108,9 @@ const RiskAssessment: React.FC<ModuleChangeProps> = ({ onModuleChange, setIsForm
   const [historyClassificationFilter, setHistoryClassificationFilter] = useState('all');
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<HistoryItem | null>(null);
+  
+  // Add Entity Modal State
+  const [isAddEntityModalOpen, setIsAddEntityModalOpen] = useState(false);
 
   const problematicDocuments = useMemo(() => {
     if (!selectedEntity?.documents) return [];
@@ -148,7 +165,7 @@ const RiskAssessment: React.FC<ModuleChangeProps> = ({ onModuleChange, setIsForm
                 setIsFormDirty(false);
             }
         }
-    }, [selectedEntityId, selectedEntity]);
+    }, [selectedEntityId, selectedEntity, setIsFormDirty]);
 
     // Effect to check for dirtiness by comparing current state to pristine state
     useEffect(() => {
@@ -180,7 +197,8 @@ const RiskAssessment: React.FC<ModuleChangeProps> = ({ onModuleChange, setIsForm
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
-        setActiveSearch(null);
+        setIsNameDropdownOpen(false);
+        setIsNifDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -198,7 +216,6 @@ const RiskAssessment: React.FC<ModuleChangeProps> = ({ onModuleChange, setIsForm
       return { scores: {}, finalScore: 0, finalClassification: 'C - Não Favorável' };
     }
     
-    // FIX: Iterate using a for...in loop for better type inference.
     for (const criterionKey in currentMatrix) {
         const criterion = currentMatrix[criterionKey];
         const questionKeys = Object.keys(criterion.items);
@@ -239,36 +256,56 @@ const RiskAssessment: React.FC<ModuleChangeProps> = ({ onModuleChange, setIsForm
     const query = e.target.value;
     setNameQuery(query);
     if (query.trim() === '') {
-      setSearchResults([]);
-      setActiveSearch(null);
+      setNameSearchResults([]);
+      setIsNameDropdownOpen(false);
     } else {
       const results = mockEntities.filter(entity =>
         entity.name.toLowerCase().includes(query.toLowerCase())
       );
-      setSearchResults(results);
-      setActiveSearch('name');
+      setNameSearchResults(results);
+      setIsNameDropdownOpen(true);
+      setIsNifDropdownOpen(false); // Explicitly close the other dropdown
     }
   };
 
   const handleNifSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setNifQuery(query);
-     if (query.trim() === '') {
-      setSearchResults([]);
-      setActiveSearch(null);
+    if (query.trim() === '') {
+      setNifSearchResults([]);
+      setIsNifDropdownOpen(false);
     } else {
       const results = mockEntities.filter(entity =>
         entity.nif.includes(query)
       );
-      setSearchResults(results);
-      setActiveSearch('nif');
+      setNifSearchResults(results);
+      setIsNifDropdownOpen(true);
+      setIsNameDropdownOpen(false); // Explicitly close the other dropdown
     }
   };
 
   const handleSelectEntity = (entity: Entity) => {
     setSelectedEntityId(entity.id);
-    setActiveSearch(null);
+    setNameQuery(entity.name);
+    setNifQuery(entity.nif);
+    setIsNameDropdownOpen(false);
+    setIsNifDropdownOpen(false);
   };
+  
+  const handleSaveNewEntity = (newEntity: Entity) => {
+      mockEntities.unshift(newEntity); // Add to mock data
+      addToast(`Entidade "${newEntity.name}" adicionada com sucesso!`, 'success');
+      setIsAddEntityModalOpen(false);
+      // Automatically select the new entity
+      handleSelectEntity(newEntity);
+  };
+
+  const getInitialValueForModal = () => {
+      if (isNameDropdownOpen) return { name: nameQuery, nif: '' };
+      if (isNifDropdownOpen) return { name: '', nif: nifQuery };
+      return { name: nameQuery, nif: nifQuery };
+  }
+
   
   const handleGenerateAISummary = async () => {
     setIsGenerating(true);
@@ -325,7 +362,10 @@ const RiskAssessment: React.FC<ModuleChangeProps> = ({ onModuleChange, setIsForm
         formState: formState,
         observations: observacoes,
     };
+    // Update local state for immediate UI feedback
     setHistory(prevHistory => [newAssessment, ...prevHistory]);
+    // Update mock data for persistence across navigation
+    mockHistory.unshift(newAssessment);
 
     // Create a new approval request
     const newApprovalId = `aq${mockApprovalQueue.length + 1}`;
@@ -348,7 +388,7 @@ const RiskAssessment: React.FC<ModuleChangeProps> = ({ onModuleChange, setIsForm
     mockApprovalQueue.unshift(newApprovalRequest);
 
     if (setIsFormDirty) setIsFormDirty(false);
-    alert('Avaliação salva e submetida para aprovação!');
+    addToast('Avaliação salva e submetida para aprovação!', 'success');
     if (onModuleChange) onModuleChange('approval-queue');
 };
 
@@ -386,6 +426,14 @@ const RiskAssessment: React.FC<ModuleChangeProps> = ({ onModuleChange, setIsForm
             onClose={() => setIsHistoryModalOpen(false)}
             item={selectedHistoryItem}
         />
+        <AddEntityModal 
+            isOpen={isAddEntityModalOpen}
+            onClose={() => setIsAddEntityModalOpen(false)}
+            onSave={handleSaveNewEntity}
+            initialName={getInitialValueForModal().name}
+            initialNif={getInitialValueForModal().nif}
+        />
+
         {view === 'history' && (
             <div className="bg-card p-6 rounded-xl shadow-md space-y-6 animate-fade-in">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -423,7 +471,7 @@ const RiskAssessment: React.FC<ModuleChangeProps> = ({ onModuleChange, setIsForm
                                 <th scope="col" className="px-6 py-3">Data da Avaliação</th>
                                 <th scope="col" className="px-6 py-3">Pontuação</th>
                                 <th scope="col" className="px-6 py-3">Classificação</th>
-                                <th scope="col" className="px-6 py-3">Avaliador</th>
+                                <th scope="col" className="px-6 py-3">Responsável pela Avaliação</th>
                                 <th scope="col" className="px-6 py-3">Ações</th>
                             </tr>
                         </thead>
@@ -480,36 +528,54 @@ const RiskAssessment: React.FC<ModuleChangeProps> = ({ onModuleChange, setIsForm
                         <div className="relative">
                             <label htmlFor="name-search" className="block text-sm font-medium text-text-secondary">Nome da Entidade</label>
                             <div className="relative">
-                            <input id="name-search" type="text" value={nameQuery} onChange={handleNameSearch} onFocus={(e) => handleNameSearch(e)} placeholder="Digite para procurar..." autoComplete="off"
+                            <input id="name-search" type="text" value={nameQuery} onChange={handleNameSearch} onFocus={handleNameSearch} placeholder="Digite para procurar..." autoComplete="off"
                                 className="mt-1 w-full bg-background border border-border rounded-md py-1.5 px-2 pl-8 text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-secondary transition" />
                             <svg className="w-4 h-4 absolute left-2 top-1/2 -translate-y-1/2 text-text-secondary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clipRule="evenodd" />
                             </svg>
                             </div>
-                            {activeSearch === 'name' && searchResults.length > 0 && (
-                            <ul className="absolute z-10 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-60 overflow-auto">
-                                {searchResults.map(entity => (
-                                <li key={entity.id} onClick={() => handleSelectEntity(entity)} className="cursor-pointer select-none relative p-2 text-sm text-text-secondary hover:bg-secondary hover:text-primary">{entity.name}</li>
-                                ))}
-                            </ul>
+                            {isNameDropdownOpen && (
+                                <ul className="absolute z-10 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-60 overflow-auto">
+                                    {nameSearchResults.length > 0 ? (
+                                        nameSearchResults.map(entity => (
+                                            <li key={entity.id} onClick={() => handleSelectEntity(entity)} className="cursor-pointer select-none relative p-2 text-sm text-text-secondary hover:bg-secondary hover:text-primary">{entity.name}</li>
+                                        ))
+                                    ) : (
+                                        <li>
+                                            <button onClick={() => setIsAddEntityModalOpen(true)} className="w-full text-left p-3 text-sm text-primary font-semibold hover:bg-background flex items-center gap-2">
+                                                <PlusIcon className="w-4 h-4" />
+                                                Adicionar nova entidade
+                                            </button>
+                                        </li>
+                                    )}
+                                </ul>
                             )}
                         </div>
 
                         <div className="relative">
                             <label htmlFor="nif-search" className="block text-sm font-medium text-text-secondary">NIF</label>
                             <div className="relative">
-                            <input id="nif-search" type="text" value={nifQuery} onChange={handleNifSearch} onFocus={(e) => handleNifSearch(e)} placeholder="Digite para procurar..." autoComplete="off"
+                            <input id="nif-search" type="text" value={nifQuery} onChange={handleNifSearch} onFocus={handleNifSearch} placeholder="Digite para procurar..." autoComplete="off"
                                 className="mt-1 w-full bg-background border border-border rounded-md py-1.5 px-2 pl-8 text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-secondary transition" />
                             <svg className="w-4 h-4 absolute left-2 top-1/2 -translate-y-1/2 text-text-secondary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clipRule="evenodd" />
                             </svg>
                             </div>
-                            {activeSearch === 'nif' && searchResults.length > 0 && (
-                            <ul className="absolute z-10 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-60 overflow-auto">
-                                {searchResults.map(entity => (
-                                <li key={entity.id} onClick={() => handleSelectEntity(entity)} className="cursor-pointer select-none relative p-2 text-sm text-text-secondary hover:bg-secondary hover:text-primary">{entity.nif} - {entity.name}</li>
-                                ))}
-                            </ul>
+                            {isNifDropdownOpen && (
+                                <ul className="absolute z-10 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-60 overflow-auto">
+                                    {nifSearchResults.length > 0 ? (
+                                        nifSearchResults.map(entity => (
+                                            <li key={entity.id} onClick={() => handleSelectEntity(entity)} className="cursor-pointer select-none relative p-2 text-sm text-text-secondary hover:bg-secondary hover:text-primary">{entity.nif} - {entity.name}</li>
+                                        ))
+                                    ) : (
+                                         <li>
+                                            <button onClick={() => setIsAddEntityModalOpen(true)} className="w-full text-left p-3 text-sm text-primary font-semibold hover:bg-background flex items-center gap-2">
+                                                <PlusIcon className="w-4 h-4" />
+                                                Adicionar nova entidade
+                                            </button>
+                                        </li>
+                                    )}
+                                </ul>
                             )}
                         </div>
                         
@@ -583,7 +649,6 @@ const RiskAssessment: React.FC<ModuleChangeProps> = ({ onModuleChange, setIsForm
                         </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
-                        {/* FIX: Replaced Object.entries with Object.keys().map for better type inference. */}
                         {Object.keys(criteriaMatrix[selectedEntity.entityType] || {}).map((key, index) => {
                             const config = (criteriaMatrix[selectedEntity.entityType] || {})[key];
                             return (
@@ -601,7 +666,6 @@ const RiskAssessment: React.FC<ModuleChangeProps> = ({ onModuleChange, setIsForm
                 </div>
                 
                 <div className="space-y-6">
-                    {/* FIX: Replaced Object.entries with Object.keys().map for better type inference. */}
                     {Object.keys(criteriaMatrix[selectedEntity.entityType] || {}).map((criterionKey) => {
                         const criterionData = (criteriaMatrix[selectedEntity.entityType] || {})[criterionKey];
                         return renderDetailSection(criterionKey, criterionData)

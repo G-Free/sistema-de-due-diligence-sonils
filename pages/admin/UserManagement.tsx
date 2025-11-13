@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User } from '../../types';
 import { mockUsers } from '../../data/mockData';
 import { PlusIcon } from '../../components/icons/PlusIcon';
@@ -13,10 +13,18 @@ interface UserModalProps {
 }
 
 const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSave, userToEdit }) => {
-  const [name, setName] = useState(userToEdit?.name || '');
-  const [email, setEmail] = useState(userToEdit?.email || '');
-  const [role, setRole] = useState(userToEdit?.role || 'Tecnico');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState<User['role']>('Tecnico');
   const isEditMode = !!userToEdit;
+
+  useEffect(() => {
+    if (isOpen) {
+        setName(userToEdit?.name || '');
+        setEmail(userToEdit?.email || '');
+        setRole(userToEdit?.role || 'Tecnico');
+    }
+  }, [isOpen, userToEdit]);
 
   if (!isOpen) return null;
 

@@ -175,3 +175,18 @@ export interface AuditLog {
   timestamp: string;
   details: string;
 }
+
+export interface AssessmentRequest {
+  id: string;
+  requesterEmail: string;
+  requestDate: string;
+  status: 'Pendente' | 'Em Processo';
+  emailBody: string;
+  supplierData: {
+    name: string;
+    nif: string;
+    email: string;
+    phone: string;
+    services: string;
+  };
+}

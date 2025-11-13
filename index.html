@@ -2,7 +2,7 @@
 <html lang="pt">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/conteudos/imagem/SONILS_logo(1).png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistema de Due Diligence - SONILS</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -62,6 +62,8 @@
             animation: {
               'fade-in-up': 'fadeInUp 0.3s ease-out forwards',
               'fade-in': 'fadeIn 0.2s ease-out forwards',
+              'fade-in-right': 'fadeInRight 0.3s ease-out forwards',
+              'fade-out-right': 'fadeOutRight 0.3s ease-in forwards',
             },
             keyframes: {
               fadeInUp: {
@@ -71,6 +73,14 @@
                fadeIn: {
                 '0%': { opacity: '0' },
                 '100%': { opacity: '1' },
+              },
+              fadeInRight: {
+                '0%': { opacity: '0', transform: 'translateX(20px)' },
+                '100%': { opacity: '1', transform: 'translateX(0)' },
+              },
+              fadeOutRight: {
+                '0%': { opacity: '1', transform: 'translateX(0)' },
+                '100%': { opacity: '0', transform: 'translateX(20px)' },
               }
             }
           }

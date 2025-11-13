@@ -1,21 +1,25 @@
 import React from 'react';
 import { ModuleChangeProps, DocumentItem } from '../types';
 import { internalPolicies, angolanLaws, internationalNorms } from '../data/mockData';
+import { useToast } from '../components/useToast';
 
-const DocumentCard: React.FC<{ doc: DocumentItem }> = ({ doc }) => (
-    <div className="bg-background p-4 rounded-lg border border-border flex flex-col sm:flex-row justify-between items-start sm:items-center">
-        <div>
-            <h4 className="font-semibold text-text-main">{doc.title}</h4>
-            <p className="text-sm text-text-secondary mt-1">{doc.description}</p>
+const DocumentCard: React.FC<{ doc: DocumentItem }> = ({ doc }) => {
+    const { addToast } = useToast();
+    return (
+        <div className="bg-background p-4 rounded-lg border border-border flex flex-col sm:flex-row justify-between items-start sm:items-center">
+            <div>
+                <h4 className="font-semibold text-text-main">{doc.title}</h4>
+                <p className="text-sm text-text-secondary mt-1">{doc.description}</p>
+            </div>
+            <button 
+                onClick={() => addToast(`A simular a abertura do documento: ${doc.title}`, 'info')}
+                className="mt-3 sm:mt-0 sm:ml-4 text-sm bg-secondary hover:bg-secondary-hover text-primary font-semibold py-1.5 px-4 rounded-lg transition-colors shrink-0"
+            >
+                Consultar
+            </button>
         </div>
-        <button 
-            onClick={() => alert(`A abrir o documento: ${doc.title}`)}
-            className="mt-3 sm:mt-0 sm:ml-4 text-sm bg-secondary hover:bg-secondary-hover text-primary font-semibold py-1.5 px-4 rounded-lg transition-colors shrink-0"
-        >
-            Consultar
-        </button>
-    </div>
-);
+    );
+}
 
 
 const Policies: React.FC<ModuleChangeProps> = ({ onModuleChange }) => {

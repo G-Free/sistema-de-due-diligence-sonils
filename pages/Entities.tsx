@@ -11,6 +11,7 @@ import { UserIcon } from '../components/icons/UserIcon';
 import { EyeIcon } from '../components/icons/EyeIcon';
 import { SlidersIcon } from '../components/icons/SlidersIcon';
 import { EditIcon } from '../components/icons/EditIcon';
+import { useToast } from '../components/useToast';
 
 const riskColorMap: Record<RiskLevel, string> = {
   [RiskLevel.Low]: 'bg-success/10 text-success',
@@ -33,6 +34,7 @@ const Entities: React.FC<ModuleChangeProps> = ({ onModuleChange }) => {
     const [selectedEntityForStatus, setSelectedEntityForStatus] = useState<Entity | null>(null);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [selectedEntityForModal, setSelectedEntityForModal] = useState<Entity | null>(null);
+    const { addToast } = useToast();
     
     // New filter states
     const [riskFilter, setRiskFilter] = useState<RiskLevel | 'all'>('all');
@@ -113,6 +115,7 @@ const Entities: React.FC<ModuleChangeProps> = ({ onModuleChange }) => {
                 statusLog: updatedLog
             };
         }
+        addToast('Estado da entidade alterado com sucesso!', 'success');
     };
     
     const handleViewDetails = (entity: Entity) => {
@@ -137,11 +140,11 @@ const Entities: React.FC<ModuleChangeProps> = ({ onModuleChange }) => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
             <h2 className="text-xl font-bold text-text-main mb-4 sm:mb-0">Base de Dados de Entidades</h2>
             <div className="flex items-center gap-2">
-                <button onClick={() => alert('A exportar para Excel... (simulação)')} className="flex items-center gap-2 bg-card border border-border text-text-main font-semibold py-2 px-3 rounded-lg text-sm hover:bg-background transition-colors">
+                <button onClick={() => addToast('Simulando exportação para Excel...', 'info', 'Exportar')} className="flex items-center gap-2 bg-card border border-border text-text-main font-semibold py-2 px-3 rounded-lg text-sm hover:bg-background transition-colors">
                     <ExportIcon className="w-4 h-4" />
                     <span>Excel</span>
                 </button>
-                <button onClick={() => alert('A exportar para PDF... (simulação)')} className="flex items-center gap-2 bg-card border border-border text-text-main font-semibold py-2 px-3 rounded-lg text-sm hover:bg-background transition-colors">
+                <button onClick={() => addToast('Simulando exportação para PDF...', 'info', 'Exportar')} className="flex items-center gap-2 bg-card border border-border text-text-main font-semibold py-2 px-3 rounded-lg text-sm hover:bg-background transition-colors">
                     <ExportIcon className="w-4 h-4" />
                     <span>PDF</span>
                 </button>

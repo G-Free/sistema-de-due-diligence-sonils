@@ -25,6 +25,7 @@ import ViewModule from "./pages/ViewModule";
 import AssessmentTemplateBuilder from "./pages/AssessmentTemplateBuilder";
 import MenuDashboard from "./pages/MenuDashboard";
 import Policies from "./pages/Policies";
+import AssessmentRequests from "./pages/AssessmentRequests";
 
 
 const App: React.FC = () => {
@@ -83,7 +84,9 @@ const App: React.FC = () => {
       case "questionnaire":
         return <DDQQuestionnaire onModuleChange={handleModuleChange} />;
       case "risk-assessment":
-        return <RiskAssessment onModuleChange={handleModuleChange} setIsFormDirty={setIsFormDirty} />;
+        return <RiskAssessment onModuleChange={handleModuleChange} setIsFormDirty={setIsFormDirty} initialView={context?.initialView || 'history'} selectedId={context?.selectedId} />;
+      case "new-risk-assessment":
+        return <AssessmentRequests onModuleChange={handleModuleChange} />;
       case "documents":
         return <DocumentManagement onModuleChange={handleModuleChange} />;
       case "approval-queue":

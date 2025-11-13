@@ -1,6 +1,10 @@
-import React from 'react';
-import { ModuleChangeProps, Entity, RiskLevel, LegalStatus, DocumentStatus } from '../types';
+import React, { useState } from 'react';
+import { ModuleChangeProps, Entity, RiskLevel, Document, DocumentStatus } from '../types';
 import { WarningIcon } from '../components/icons/WarningIcon';
+import { DownloadIcon } from '../components/icons/DownloadIcon';
+import { EyeIcon } from '../components/icons/EyeIcon';
+import { useToast } from '../components/useToast';
+import ViewDocumentModal from '../components/ViewDocumentModal';
 
 
 interface IndividualReportProps extends ModuleChangeProps {
@@ -30,6 +34,19 @@ const statusConfig: Record<DocumentStatus, { classes: string }> = {
 };
 
 const IndividualReport: React.FC<IndividualReportProps> = ({ onModuleChange, entity }) => {
+  const { addToast } = useToast();
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+
+  const handleDownloadDocument = (doc: Document) => {
+    addToast(`A simular o download do documento: ${doc.name}`, 'info', 'Download');
+  };
+
+  const handleViewDocument = (doc: Document) => {
+    setSelectedDocument(doc);
+    setIsViewModalOpen(true);
+  };
+
   if (!entity) {
     return (
       <div className="bg-card p-8 rounded-lg shadow-sm text-center">
@@ -43,6 +60,13 @@ const IndividualReport: React.FC<IndividualReportProps> = ({ onModuleChange, ent
   }
 
   return (
+    <>
+    <ViewDocumentModal
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        document={selectedDocument}
+        onDownload={handleDownloadDocument}
+    />
     <div className="space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
             <div>
@@ -111,6 +135,7 @@ const IndividualReport: React.FC<IndividualReportProps> = ({ onModuleChange, ent
                                 <th scope="col" className="px-6 py-4 font-semibold">Estado</th>
                                 <th scope="col" className="px-6 py-4 font-semibold">Data de Submissão</th>
                                 <th scope="col" className="px-6 py-4 font-semibold">Data de Vencimento</th>
+                                <th scope="col" className="px-6 py-4 font-semibold text-right">Ações</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
@@ -124,6 +149,12 @@ const IndividualReport: React.FC<IndividualReportProps> = ({ onModuleChange, ent
                                     </td>
                                     <td className="px-6 py-4">{doc.submissionDate}</td>
                                     <td className="px-6 py-4 font-medium text-danger">{doc.expiryDate || 'N/A'}</td>
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex items-center justify-end gap-4">
+                                            <button type="button" onClick={() => handleViewDocument(doc)} className="text-text-secondary hover:text-primary" aria-label="Visualizar"><EyeIcon className="w-5 h-5"/></button>
+                                            <button type="button" onClick={() => handleDownloadDocument(doc)} className="text-text-secondary hover:text-primary" aria-label="Baixar"><DownloadIcon className="w-5 h-5"/></button>
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -163,6 +194,7 @@ const IndividualReport: React.FC<IndividualReportProps> = ({ onModuleChange, ent
             )}
         </div>
     </div>
+    </>
   );
 };
 

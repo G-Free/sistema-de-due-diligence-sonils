@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DocumentItem } from '../../types';
 import { internalPolicies, angolanLaws, internationalNorms } from '../../data/mockData';
 import { PlusIcon } from '../../components/icons/PlusIcon';
@@ -15,9 +15,16 @@ interface PolicyModalProps {
 }
 
 const PolicyModal: React.FC<PolicyModalProps> = ({ isOpen, onClose, onSave, policyToEdit }) => {
-    const [title, setTitle] = useState(policyToEdit?.policy.title || '');
-    const [description, setDescription] = useState(policyToEdit?.policy.description || '');
-    const isEditMode = !!policyToEdit;
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const isEditMode = !!(policyToEdit && policyToEdit.policy.id);
+
+    useEffect(() => {
+        if (isOpen) {
+            setTitle(policyToEdit?.policy.title || '');
+            setDescription(policyToEdit?.policy.description || '');
+        }
+    }, [isOpen, policyToEdit]);
 
     if (!isOpen) return null;
 

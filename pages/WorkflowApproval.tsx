@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { ModuleChangeProps, ApprovalQueueItem, HistoryItem, ApprovalStatus, ApprovalLog } from '../types';
 import { mockHistory, mockEntities, mockApprovalQueue } from '../data/mockData';
+import { useToast } from '../components/useToast';
 
 interface WorkflowApprovalProps extends ModuleChangeProps {
   approvalItem?: ApprovalQueueItem;
@@ -108,6 +109,7 @@ const statusOrder: ApprovalStatus[] = [
 const WorkflowApproval: React.FC<WorkflowApprovalProps> = ({ onModuleChange, approvalItem }) => {
     const [comments, setComments] = useState('');
     const [actionError, setActionError] = useState('');
+    const { addToast } = useToast();
 
     const entity = useMemo(() => {
         if (!approvalItem) return null;
@@ -167,27 +169,19 @@ const WorkflowApproval: React.FC<WorkflowApprovalProps> = ({ onModuleChange, app
         const updatedItem = { ...approvalItem, status: nextStatus, log: [...(approvalItem.log || []), newLog] };
         mockApprovalQueue[itemIndex] = updatedItem;
 
-        let notificationMessage = '';
-        const requester = approvalItem.requester;
+        let notificationTitle = 'Ação Registada';
+        let notificationMessage = `A sua ação de "${action}" foi registada com sucesso.`;
+        let toastType: 'success' | 'error' | 'info' = 'success';
 
-        if (action === 'Aprovar') {
-            if (nextStatus === 'Aprovado') {
-                notificationMessage = `Email de notificação enviado para ${requester}: A sua solicitação para "${approvalItem.entityName}" foi APROVADA.`;
-            } else {
-                const nextStepIndex = statusOrder.indexOf(nextStatus);
-                if (nextStepIndex !== -1) {
-                    const nextStepInfo = workflowSteps[nextStepIndex + 1];
-                    notificationMessage = `Email de notificação enviado para ${nextStepInfo.responsible}: A solicitação para "${approvalItem.entityName}" aguarda a sua ação (${nextStepInfo.title}).`;
-                }
-            }
-        } else if (action === 'Rejeitar') {
-            notificationMessage = `Email de notificação enviado para ${requester}: A sua solicitação para "${approvalItem.entityName}" foi REJEITADA. Motivo: ${comments}`;
+        if (action === 'Rejeitar') {
+            notificationTitle = 'Solicitação Rejeitada';
+            toastType = 'error';
         } else if (action === 'Solicitar Mais Informação') {
-            const nextResponsible = workflowSteps[1].responsible; // Back to compliance officer
-            notificationMessage = `Email de notificação enviado para ${requester} e ${nextResponsible}: A solicitação de "${approvalItem.entityName}" foi reiniciada por necessitar de mais informação. Comentários: "${comments}"`;
+            notificationTitle = 'Mais Informação Solicitada';
+            toastType = 'info';
         }
 
-        alert(`Ação "${action}" registada com sucesso.\n\n${notificationMessage}`);
+        addToast(notificationMessage, toastType, notificationTitle);
         onModuleChange('approval-queue');
     };
     

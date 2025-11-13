@@ -5,6 +5,7 @@ import { mockEntities, mockApprovalQueue, mockCampaigns, mockTrainingModules, mo
 import { ExportIcon } from '../components/icons/ExportIcon';
 import EntityDetailModal from '../components/EntityDetailModal';
 import { PowerBiIcon } from '../components/icons/PowerBiIcon';
+import { useToast } from '../components/useToast';
 
 const PIE_COLORS = ['#FFDC00', '#111827', '#DA291C', '#6B7280', '#f59e0b', '#0EA5E9'];
 
@@ -75,6 +76,7 @@ const Dashboard: React.FC<ModuleChangeProps> = ({ onModuleChange }) => {
   const [riskFilter, setRiskFilter] = useState<RiskLevel | 'all'>('all');
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedEntityForModal, setSelectedEntityForModal] = useState<Entity | null>(null);
+  const { addToast } = useToast();
 
   const filteredEntities = useMemo(() => {
     const now = new Date();
@@ -212,11 +214,11 @@ const Dashboard: React.FC<ModuleChangeProps> = ({ onModuleChange }) => {
             <p className="text-text-secondary mt-1">Visão 360º sobre risco, compliance e performance.</p>
           </div>
           <div className="flex items-center gap-2 mt-4 md:mt-0">
-            <button onClick={() => alert('Funcionalidade em desenvolvimento.')} className="flex items-center gap-2 bg-secondary text-primary font-semibold py-2 px-3 rounded-lg text-sm hover:bg-secondary-hover transition-colors">
+            <button onClick={() => addToast('Funcionalidade em desenvolvimento.', 'info', 'Power BI')} className="flex items-center gap-2 bg-secondary text-primary font-semibold py-2 px-3 rounded-lg text-sm hover:bg-secondary-hover transition-colors">
                 <PowerBiIcon className="w-4 h-4" />
                 <span>Ver no Power BI</span>
             </button>
-            <button onClick={() => alert('Funcionalidade de exportação em desenvolvimento.')} className="flex items-center gap-2 bg-card border border-border text-text-main font-semibold py-2 px-3 rounded-lg text-sm hover:bg-background transition-colors">
+            <button onClick={() => addToast('Simulando exportação para PDF...', 'info', 'Exportar')} className="flex items-center gap-2 bg-card border border-border text-text-main font-semibold py-2 px-3 rounded-lg text-sm hover:bg-background transition-colors">
                 <ExportIcon className="w-4 h-4" />
                 <span>Exportar PDF</span>
             </button>

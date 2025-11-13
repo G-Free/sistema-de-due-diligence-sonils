@@ -27,11 +27,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             {/* Painel Esquerdo - Branding */}
             <div 
                 className="hidden lg:flex w-1/2 bg-cover bg-center" 
-                style={{ backgroundImage: `url('https://images.unsplash.com/photo-1577953933060-e535a8e45b24?q=80&w=1974&auto=format&fit=crop')` }}
+                style={{ backgroundImage: `url('/conteudos/imagem/SONILS_logo_with_text (1).png')` }}
             >
                 <div className="bg-primary/90 w-full h-full flex flex-col justify-between p-12 text-white">
                     <div>
+<<<<<<< HEAD
                          
+=======
+>>>>>>> 30a9ad7 (Atualização completa do sistema de due diligence)
                     </div>
                     <div>
                         <h1 className="text-4xl font-bold leading-tight">Plataforma de Due Diligence</h1>

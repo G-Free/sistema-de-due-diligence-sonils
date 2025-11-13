@@ -1,6 +1,7 @@
 import React from 'react';
 import { ModuleChangeProps } from '../types';
 import { mockQuiz, mockTrainingModules, mockCampaigns, mockActionPlans } from '../data/mockData';
+import { useToast } from '../components/useToast';
 
 const ProgressBar: React.FC<{ value: number, colorClass: string }> = ({ value, colorClass }) => (
     <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -9,6 +10,8 @@ const ProgressBar: React.FC<{ value: number, colorClass: string }> = ({ value, c
 );
 
 const TrainingDashboard: React.FC<ModuleChangeProps> = ({ onModuleChange }) => {
+    const { addToast } = useToast();
+
     return (
         <div className="space-y-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -86,7 +89,7 @@ const TrainingDashboard: React.FC<ModuleChangeProps> = ({ onModuleChange }) => {
                                     <td className="px-6 py-4">{m.content.length} itens</td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <button onClick={() => onModuleChange('view-module', m)} className="font-medium text-primary hover:underline">Visualizar</button>
-                                        <button onClick={() => alert('Funcionalidade em desenvolvimento.')} className="font-medium text-primary hover:underline ml-4">Gerir</button>
+                                        <button onClick={() => addToast('Funcionalidade em desenvolvimento.', 'info')} className="font-medium text-primary hover:underline ml-4">Gerir</button>
                                     </td>
                                 </tr>
                             ))}
@@ -98,7 +101,7 @@ const TrainingDashboard: React.FC<ModuleChangeProps> = ({ onModuleChange }) => {
             <div className="bg-card p-6 rounded-lg shadow-sm">
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-bold text-primary">Planos de Ação</h3>
-                    <button onClick={() => alert('Funcionalidade em desenvolvimento.')} className="text-sm bg-gray-200 hover:bg-gray-300 text-text-main font-semibold py-1.5 px-4 rounded-lg transition-colors">
+                    <button onClick={() => addToast('Funcionalidade em desenvolvimento.', 'info')} className="text-sm bg-gray-200 hover:bg-gray-300 text-text-main font-semibold py-1.5 px-4 rounded-lg transition-colors">
                         Criar Plano
                     </button>
                 </div>
@@ -123,7 +126,7 @@ const TrainingDashboard: React.FC<ModuleChangeProps> = ({ onModuleChange }) => {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <button onClick={() => alert('Funcionalidade em desenvolvimento.')} className="font-medium text-primary hover:underline">Gerir</button>
+                                        <button onClick={() => addToast('Funcionalidade em desenvolvimento.', 'info')} className="font-medium text-primary hover:underline">Gerir</button>
                                     </td>
                                 </tr>
                             ))}

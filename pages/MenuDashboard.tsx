@@ -9,6 +9,7 @@ import { TrainingIcon } from '../components/icons/TrainingIcon';
 import { ReportIcon } from '../components/icons/ReportIcon';
 import { AdminIcon } from '../components/icons/AdminIcon';
 import { GavelIcon } from '../components/icons/GavelIcon';
+import { FilePlusIcon } from '../components/icons/FilePlusIcon';
 
 interface MenuDashboardProps extends ModuleChangeProps {
     user: User;
@@ -52,6 +53,12 @@ const NavCard: React.FC<{
 
 
 const modules = [
+     { 
+        id: 'new-risk-assessment', 
+        title: 'Iniciar Nova Avaliação', 
+        description: 'Para solicitações recebidas por email ou outros canais, inicie o processo de avaliação de risco aqui.',
+        icon: FilePlusIcon
+    },
     { 
         id: 'dashboard', 
         title: 'Dashboard de Análise', 
@@ -108,7 +115,7 @@ const modules = [
     }
 ];
 
-const cardColors: ('yellow' | 'black')[] = ['yellow', 'yellow', 'yellow', 'black', 'black', 'black', 'yellow', 'black', 'black'];
+const cardColors: ('yellow' | 'black')[] = ['yellow', 'yellow', 'yellow', 'black', 'black', 'black', 'yellow', 'yellow', 'black', 'black'];
 
 
 const MenuDashboard: React.FC<MenuDashboardProps> = ({ onModuleChange, user }) => {
@@ -119,13 +126,13 @@ const MenuDashboard: React.FC<MenuDashboardProps> = ({ onModuleChange, user }) =
                 return true;
             }
             if (user.role === 'Director Geral') {
-                return module.id === 'reports';
+                return ['reports', 'dashboard'].includes(module.id);
             }
             if (user.role === 'Gestor/Director da Area') {
                 return module.id !== 'admin';
             }
             if (user.role === 'Tecnico') {
-                const allowedModules = ['dashboard', 'entities', 'risk-assessment', 'documents', 'training', 'policies'];
+                const allowedModules = ['dashboard', 'entities', 'risk-assessment', 'new-risk-assessment', 'documents', 'training', 'policies'];
                 return allowedModules.includes(module.id);
             }
             return false;
@@ -139,7 +146,7 @@ const MenuDashboard: React.FC<MenuDashboardProps> = ({ onModuleChange, user }) =
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {visibleModules.map((module, index) => (
                     <NavCard 
-                        key={module.id}
+                        key={module.id + '-' + index} // Add index to key to ensure uniqueness due to duplicate IDs
                         title={module.title}
                         description={module.description}
                         icon={module.icon}

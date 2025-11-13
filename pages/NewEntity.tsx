@@ -1,8 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ModuleChangeProps, Entity, EntityType } from '../types';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { ModuleChangeProps, Entity, EntityType, Document, DocumentStatus, RiskLevel, LegalStatus } from '../types';
 import { validateNifExternally } from '../services/validationService';
 import { CheckIcon } from '../components/icons/CheckIcon';
 import { AlertCircleIcon } from '../components/icons/AlertCircleIcon';
+import UploadDocumentModal from '../components/UploadDocumentModal';
+import ViewDocumentModal from '../components/ViewDocumentModal';
+import { mockEntities } from '../data/mockData';
+import { EyeIcon } from '../components/icons/EyeIcon';
+import { TrashIcon } from '../components/icons/TrashIcon';
+import { DownloadIcon } from '../components/icons/DownloadIcon';
+import { useToast } from '../components/useToast';
+import { countrySpecificDocuments, supportedCountries } from '../data/documentData';
 
 interface NewEntityProps extends ModuleChangeProps {
     entityToEdit?: Entity;
@@ -18,6 +26,14 @@ const Step: React.FC<{ number: number; title: string; isActive: boolean; isCompl
     </div>
 );
 
+const statusConfig: Record<DocumentStatus, { classes: string }> = {
+    'Pendente': { classes: 'bg-warning/20 text-warning' },
+    'Expirado': { classes: 'bg-danger/20 text-danger' },
+    'Verificado': { classes: 'bg-success/20 text-success' },
+    'Recebido': { classes: 'bg-info/20 text-info' },
+};
+
+
 const NewEntity: React.FC<NewEntityProps> = ({ onModuleChange, entityToEdit, setIsFormDirty }) => {
     const [step, setStep] = useState(1);
     const isEditMode = Boolean(entityToEdit);
@@ -28,18 +44,37 @@ const NewEntity: React.FC<NewEntityProps> = ({ onModuleChange, entityToEdit, set
     const [nif, setNif] = useState('');
     const [commercialRegistration, setCommercialRegistration] = useState('');
     const [category, setCategory] = useState('Serviços Petrolíferos');
+    const [country, setCountry] = useState('Angola');
     const [beneficialOwner, setBeneficialOwner] = useState('');
     const [contactEmail, setContactEmail] = useState('');
     const [website, setWebsite] = useState('');
     const [linkedIn, setLinkedIn] = useState('');
     const [services, setServices] = useState('');
     const [legalStatusComment, setLegalStatusComment] = useState('');
+    const [documents, setDocuments] = useState<Document[]>([]);
 
     const [nifError, setNifError] = useState('');
     const [nifSuccess, setNifSuccess] = useState('');
     const [isNifValidating, setIsNifValidating] = useState(false);
     
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+    const { addToast } = useToast();
+
     const isInitialMount = useRef(true);
+    
+    const suggestedDocsForCountry = useMemo(() => {
+        const countryDocs = countrySpecificDocuments[country as keyof typeof countrySpecificDocuments] || countrySpecificDocuments['Angola'];
+        const standardDocs = [
+            'Apólices de Seguro',
+            'Relatório de Contas',
+            'Certificação ISO 9001',
+            'Licença de Operador',
+        ];
+        return [...new Set([...Object.values(countryDocs), ...standardDocs])];
+    }, [country]);
+
 
     useEffect(() => {
         if (isEditMode && entityToEdit) {
@@ -48,6 +83,7 @@ const NewEntity: React.FC<NewEntityProps> = ({ onModuleChange, entityToEdit, set
             setNif(entityToEdit.nif);
             setCommercialRegistration(entityToEdit.commercialRegistration);
             setCategory(entityToEdit.category);
+            setCountry(entityToEdit.country);
             setBeneficialOwner(entityToEdit.beneficialOwner);
             setContactEmail(entityToEdit.contact.email);
             setWebsite(entityToEdit.contact.website || '');
@@ -55,6 +91,7 @@ const NewEntity: React.FC<NewEntityProps> = ({ onModuleChange, entityToEdit, set
             setServices(entityToEdit.services.join(', '));
             setLegalStatusComment(entityToEdit.legalStatusComment || '');
             setNifSuccess(`NIF ${entityToEdit.nif} validado previamente.`);
+            setDocuments(entityToEdit.documents || []);
         }
     }, [isEditMode, entityToEdit]);
 
@@ -68,7 +105,7 @@ const NewEntity: React.FC<NewEntityProps> = ({ onModuleChange, entityToEdit, set
         } else {
             setIsFormDirty(true);
         }
-    }, [entityType, entityName, nif, commercialRegistration, category, beneficialOwner, contactEmail, website, linkedIn, services, legalStatusComment, setIsFormDirty]);
+    }, [entityType, entityName, nif, commercialRegistration, category, country, beneficialOwner, contactEmail, website, linkedIn, services, legalStatusComment, documents, setIsFormDirty]);
 
     // Cleanup effect on unmount
     useEffect(() => {
@@ -90,7 +127,7 @@ const NewEntity: React.FC<NewEntityProps> = ({ onModuleChange, entityToEdit, set
     };
 
     const handleNifChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value.replace(/\D/g, ''); // Allow only digits
+        const value = e.target.value; // Allow alphanumeric for international NIFs
         setNif(value);
         setNifSuccess('');
         validateNifLocally(value);
@@ -116,19 +153,95 @@ const NewEntity: React.FC<NewEntityProps> = ({ onModuleChange, entityToEdit, set
         setIsNifValidating(false);
     };
 
+    const handleUploadDocument = (newDocData: { name: string; status: DocumentStatus }) => {
+        const newDoc: Document = {
+            ...newDocData,
+            submissionDate: new Date().toISOString().split('T')[0],
+            // Expiry date can be added later if needed
+        };
+        setDocuments(prev => [...prev, newDoc]);
+    };
+
+    const handleViewDocument = (doc: Document) => {
+        setSelectedDocument(doc);
+        setIsViewModalOpen(true);
+    };
+    
+    const handleDownloadDocument = (doc: Document) => {
+        addToast(`A simular o download do documento: ${doc.name}`, 'info', 'Download');
+    };
+
+    const handleDeleteDocument = (docNameToDelete: string) => {
+        if (window.confirm(`Tem a certeza que deseja apagar o documento "${docNameToDelete}"?`)) {
+            setDocuments(prev => prev.filter(d => d.name !== docNameToDelete));
+        }
+    };
+
+
     const nextStep = () => setStep(s => Math.min(s + 1, 3));
     const prevStep = () => setStep(s => Math.max(s - 1, 1));
     const submit = () => {
+        const servicesArray = services.split(',').map(s => s.trim()).filter(Boolean);
+    
+        if (isEditMode && entityToEdit) {
+            const entityIndex = mockEntities.findIndex(e => e.id === entityToEdit.id);
+            if (entityIndex > -1) {
+                mockEntities[entityIndex] = {
+                    ...mockEntities[entityIndex],
+                    entityType, name: entityName, nif, commercialRegistration, category, country, beneficialOwner,
+                    contact: {
+                        ...mockEntities[entityIndex].contact,
+                        email: contactEmail,
+                        website: website || undefined,
+                        linkedIn: linkedIn || undefined,
+                    },
+                    services: servicesArray,
+                    legalStatusComment,
+                    documents: documents,
+                };
+            }
+        } else {
+            const newEntity: Entity = {
+                id: String(Date.now()), // More unique ID
+                entityType, name: entityName, category,
+                riskLevel: RiskLevel.Medium, 
+                status: LegalStatus.Active, 
+                onboardingDate: new Date().toISOString().split('T')[0],
+                nif, commercialRegistration, beneficialOwner,
+                address: 'Endereço a ser preenchido',
+                country,
+                services: servicesArray,
+                contact: {
+                    name: 'Contacto a ser preenchido',
+                    email: contactEmail,
+                    phone: 'Telefone a ser preenchido',
+                    website: website || undefined,
+                    linkedIn: linkedIn || undefined,
+                },
+                documents: documents,
+            };
+            mockEntities.unshift(newEntity); // Add to the top of the list
+        }
+    
         if(setIsFormDirty) setIsFormDirty(false);
         onModuleChange('entities');
     }
     
-    const isStep1Valid = entityName.trim() !== '' && nif.trim() !== '' && nifError === '' && nifSuccess !== '' && !isNifValidating;
+    const isStep1Valid = entityName.trim() !== '' && nif.trim() !== '' && (isEditMode || (nifError === '' && nifSuccess !== '' && !isNifValidating));
 
     const showCommercialRegistration = [EntityType.PrivateCompany, EntityType.NGO].includes(entityType);
     const showBeneficialOwner = [EntityType.PrivateCompany, EntityType.NGO].includes(entityType);
 
     return (
+        <>
+        <UploadDocumentModal 
+            isOpen={isUploadModalOpen} 
+            onClose={() => setIsUploadModalOpen(false)} 
+            onUpload={handleUploadDocument} 
+            suggestedDocs={suggestedDocsForCountry}
+        />
+        <ViewDocumentModal isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} document={selectedDocument} onDownload={handleDownloadDocument} />
+
         <div className="bg-card p-8 rounded-xl shadow-md max-w-4xl mx-auto animate-fade-in">
             <h2 className="text-2xl font-bold text-primary mb-2">{isEditMode ? 'Editar Entidade' : 'Cadastrar Nova Entidade'}</h2>
             <p className="text-text-secondary mb-8">{isEditMode ? 'Atualize as informações da entidade abaixo.' : 'Siga os passos para adicionar um novo terceiro ao sistema.'}</p>
@@ -168,6 +281,19 @@ const NewEntity: React.FC<NewEntityProps> = ({ onModuleChange, entityToEdit, set
                                 className="w-full bg-background border border-border rounded-lg p-2.5 text-text-main focus:ring-2 focus:ring-secondary focus:outline-none" 
                                 placeholder="Ex: SocoOil, Lda." 
                             />
+                        </div>
+                        
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-text-secondary mb-1">País</label>
+                            <select
+                                value={country}
+                                onChange={(e) => setCountry(e.target.value)}
+                                className="w-full bg-background border border-border rounded-lg p-2.5 text-text-main focus:ring-2 focus:ring-secondary focus:outline-none"
+                            >
+                                {supportedCountries.map(c => (
+                                    <option key={c} value={c}>{c}</option>
+                                ))}
+                            </select>
                         </div>
                         
                         <div className={showCommercialRegistration ? 'md:col-span-1' : 'md:col-span-2'}>
@@ -259,6 +385,52 @@ const NewEntity: React.FC<NewEntityProps> = ({ onModuleChange, entityToEdit, set
                             <label className="block text-sm font-medium text-text-secondary mb-1">Serviços Prestados (separados por vírgula)</label>
                             <input type="text" value={services} onChange={e => setServices(e.target.value)} className="w-full bg-background border border-border rounded-lg p-2.5 text-text-main" placeholder="Ex: Manutenção de Plataformas, Logística de Equipamentos" />
                         </div>
+
+                         <div className="md:col-span-2 border-t border-border pt-6 mt-2">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-semibold text-text-main">Gestão de Documentos</h3>
+                                <button type="button" onClick={() => setIsUploadModalOpen(true)} className="bg-primary hover:bg-primary-hover text-white font-semibold py-2 px-4 rounded-lg text-sm">
+                                    + Adicionar Documento
+                                </button>
+                            </div>
+                            <div className="overflow-x-auto border border-border rounded-lg">
+                                <table className="w-full text-sm text-left text-text-secondary">
+                                    <thead className="text-xs text-text-secondary uppercase bg-background">
+                                        <tr>
+                                            <th scope="col" className="px-4 py-3 font-semibold">Documento</th>
+                                            <th scope="col" className="px-4 py-3 font-semibold">Estado</th>
+                                            <th scope="col" className="px-4 py-3 font-semibold">Vencimento</th>
+                                            <th scope="col" className="px-4 py-3 font-semibold text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-border">
+                                        {documents.map((doc, index) => (
+                                            <tr key={index} className="hover:bg-gray-50">
+                                                <td className="px-4 py-2 font-medium text-text-main">{doc.name}</td>
+                                                <td className="px-4 py-2">
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusConfig[doc.status].classes}`}>
+                                                        {doc.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-2">{doc.expiryDate || 'N/A'}</td>
+                                                <td className="px-4 py-2 text-right">
+                                                    <div className="flex items-center justify-end gap-4">
+                                                        <button type="button" onClick={() => handleViewDocument(doc)} className="text-text-secondary hover:text-primary" aria-label="Visualizar"><EyeIcon className="w-5 h-5"/></button>
+                                                        <button type="button" onClick={() => handleDownloadDocument(doc)} className="text-text-secondary hover:text-primary" aria-label="Baixar"><DownloadIcon className="w-5 h-5"/></button>
+                                                        <button type="button" onClick={() => handleDeleteDocument(doc.name)} className="text-text-secondary hover:text-danger" aria-label="Apagar"><TrashIcon className="w-5 h-5"/></button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        {documents.length === 0 && (
+                                            <tr>
+                                                <td colSpan={4} className="text-center p-4">Nenhum documento adicionado.</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 )}
                 {step === 3 && (
@@ -271,17 +443,18 @@ const NewEntity: React.FC<NewEntityProps> = ({ onModuleChange, entityToEdit, set
             </div>
             
             <div className="flex justify-between items-center mt-10 border-t border-border pt-6">
-                <button onClick={() => onModuleChange('menu-dashboard')} className="bg-danger/10 hover:bg-danger/20 text-danger font-semibold py-2 px-4 rounded-lg transition-colors">
+                <button type="button" onClick={() => onModuleChange('menu-dashboard')} className="bg-danger/10 hover:bg-danger/20 text-danger font-semibold py-2 px-4 rounded-lg transition-colors">
                     Sair sem Salvar
                 </button>
                 <div className="flex items-center space-x-4">
                     {step > 1 && (
-                        <button onClick={prevStep} className="bg-background border border-border hover:bg-border text-text-main font-semibold py-2 px-4 rounded-lg">
+                        <button type="button" onClick={prevStep} className="bg-background border border-border hover:bg-border text-text-main font-semibold py-2 px-4 rounded-lg">
                             Anterior
                         </button>
                     )}
                     {step < 3 ? (
                         <button 
+                            type="button"
                             onClick={nextStep} 
                             disabled={step === 1 && !isStep1Valid}
                             className="bg-primary hover:bg-primary-hover text-white font-semibold py-2 px-4 rounded-lg disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
@@ -289,13 +462,14 @@ const NewEntity: React.FC<NewEntityProps> = ({ onModuleChange, entityToEdit, set
                             Próximo &rarr;
                         </button>
                     ) : (
-                         <button onClick={submit} className="bg-success hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg">
+                         <button type="button" onClick={submit} className="bg-success hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg">
                             {isEditMode ? 'Salvar Alterações' : 'Submeter'}
                         </button>
                     )}
                 </div>
             </div>
         </div>
+        </>
     );
 };
 
