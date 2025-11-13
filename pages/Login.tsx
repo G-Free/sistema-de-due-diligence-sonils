@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MailIcon } from '../components/icons/MailIcon';
-import logo from '../conteudos/imagem/SONILS_logo(1).png';
+import logo from '../conteudos/imagem/SONILS_logo_1.png';
 import { LockIcon } from '../components/icons/LockIcon';
 
 interface LoginProps {
