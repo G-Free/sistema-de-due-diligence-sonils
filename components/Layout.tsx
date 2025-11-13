@@ -6,6 +6,7 @@ import { mockNotifications, mockEntities } from '../data/mockData';
 import { Notification, User } from '../types';
 import { AdminIcon } from './icons/AdminIcon';
 import { LogoutIcon } from './icons/LogoutIcon';
+import logo from '../conteudos/imagem/SONILS_logo_1.png';
 
 const pageTitles: Record<string, string> = {
     "menu-dashboard": "Painel Principal",
@@ -64,7 +65,7 @@ const Header: React.FC<{ user: User, onLogout: () => void, activeModule: string,
     return (
         <header className="h-20 flex items-center justify-between px-8 shrink-0 bg-card border-b-4 border-secondary shadow-md">
              <div className="flex items-center gap-6">
-                <img src="/conteudos/imagem/Yeti_New_png.jpg" alt="SONILS Logo" className="h-12"/>
+                <img src={logo} alt="SONILS Logo" className="h-12"/>
                 <div className="text-sm font-semibold text-text-secondary">
                     {activeModule !== 'menu-dashboard' ? (
                         <>
