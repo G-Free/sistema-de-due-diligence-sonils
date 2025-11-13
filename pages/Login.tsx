@@ -31,10 +31,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             >
                 <div className="bg-primary/90 w-full h-full flex flex-col justify-between p-12 text-white">
                     <div>
-<<<<<<< HEAD
-                         
-=======
->>>>>>> 30a9ad7 (Atualização completa do sistema de due diligence)
                     </div>
                     <div>
                         <h1 className="text-4xl font-bold leading-tight">Plataforma de Due Diligence</h1>
