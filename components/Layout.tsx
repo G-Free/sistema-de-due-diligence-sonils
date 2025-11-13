@@ -65,7 +65,7 @@ const Header: React.FC<{ user: User, onLogout: () => void, activeModule: string,
     return (
         <header className="h-20 flex items-center justify-between px-8 shrink-0 bg-card border-b-4 border-secondary shadow-md">
              <div className="flex items-center gap-6">
-                <img src={logo} alt="SONILS Logo" className="h-18"/>
+                <img src={logo} alt="SONILS Logo" className="h-14"/>
                 <div className="text-sm font-semibold text-text-secondary">
                     {activeModule !== 'menu-dashboard' ? (
                         <>
