@@ -6,7 +6,7 @@ import { mockNotifications, mockEntities } from '../data/mockData';
 import { Notification, User } from '../types';
 import { AdminIcon } from './icons/AdminIcon';
 import { LogoutIcon } from './icons/LogoutIcon';
-import logo from '../conteudos/imagem/SONILS_logo_1.png';
+import logo from '../conteudos/imagem/Yeti_New_png.jpg';
 
 const pageTitles: Record<string, string> = {
     "menu-dashboard": "Painel Principal",
