@@ -27,7 +27,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             {/* Painel Esquerdo - Branding */}
             <div 
                 className="hidden lg:flex w-1/2 bg-cover bg-center" 
-                style={{ backgroundImage: `url('/conteudos/imagem/SONILS_logo_with_text (1).png')` }}
+                style={{ backgroundImage: `href('/conteudos/imagem/SONILS_logo_with_text (1).png')` }}
             >
                 <div className="bg-primary/90 w-full h-full flex flex-col justify-between p-12 text-white">
                     <div>
