@@ -6,7 +6,7 @@ interface LoginProps {
   onLogin: (email: string, pass: string) => boolean;
 }
 
-const sonilsLogoBase64 = "../components/image/SONILS_login.png";
+const sonilsLogoBase64 = "components/image/SONILS_login.png";
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [email, setEmail] = useState("");
