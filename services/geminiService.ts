@@ -1,0 +1,1 @@
+// Arquivo removido e unificado em services/gemini.ts

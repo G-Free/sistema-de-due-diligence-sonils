@@ -1,0 +1,68 @@
+export const supportedCountries = [
+    'Angola',
+    'Portugal',
+    'Brasil',
+    'Reino Unido',
+    'África do Sul',
+    'China',
+    'Estados Unidos',
+];
+
+export const countrySpecificDocuments: Record<string, Record<string, string>> = {
+  'Angola': {
+    commercialRegistration: 'Certidão Comercial',
+    articlesOfAssociation: 'Estatutos da Empresa',
+    taxId: 'NIF (Número de Identificação Fiscal)',
+    shareholderId: 'Identificação de Acionistas',
+    taxDeclaration: 'Declaração Fiscal AGT',
+    socialSecurityCert: 'Certidão Contributiva (INSS)',
+  },
+  'Portugal': {
+    commercialRegistration: 'Certidão Permanente',
+    articlesOfAssociation: 'Contrato de Sociedade',
+    taxId: 'NIF',
+    shareholderId: 'Certidão Permanente',
+    taxDeclaration: 'Certidão de Dívida e Não Dívida (AT)',
+    socialSecurityCert: 'Declaração da Segurança Social',
+  },
+  'Brasil': {
+    commercialRegistration: 'Contrato Social (Junta Comercial)',
+    articlesOfAssociation: 'Contrato Social Consolidado',
+    taxId: 'CNPJ',
+    shareholderId: 'Última alteração contratual',
+    taxDeclaration: 'Certidão Negativa de Débitos (CND) Receita Federal',
+    socialSecurityCert: 'CNDT (Certidão Negativa de Débitos Trabalhistas)',
+  },
+  'Reino Unido': {
+    commercialRegistration: 'Certificate of Incorporation',
+    articlesOfAssociation: 'Articles of Association',
+    taxId: 'Company Tax Number',
+    shareholderId: 'Confirmation Statement',
+    taxDeclaration: 'Tax Clearance Certificate (HMRC)',
+    socialSecurityCert: 'Modelo interno aceite se não existir oficialmente',
+  },
+  'África do Sul': {
+    commercialRegistration: 'Company Registration Certificate (CIPC)',
+    articlesOfAssociation: 'Memorandum of Incorporation (MOI)',
+    taxId: 'Income Tax Reference Number (SARS)',
+    shareholderId: 'CIPC Disclosure',
+    taxDeclaration: 'Tax Compliance Status (SARS)',
+    socialSecurityCert: 'UIF Compliance Certificate',
+  },
+  'China': {
+    commercialRegistration: 'Business License',
+    articlesOfAssociation: 'Articles of Association',
+    taxId: 'Unified Social Credit Code',
+    shareholderId: 'Registro de acionistas',
+    taxDeclaration: 'Tax Clearance Certificate',
+    socialSecurityCert: 'Modelo interno aceite se não existir oficialmente',
+  },
+  'Estados Unidos': {
+    commercialRegistration: 'Certificate of Incorporation',
+    articlesOfAssociation: 'Bylaws / Operating Agreement',
+    taxId: 'EIN (Employer Identification Number)',
+    shareholderId: 'Shareholder Register',
+    taxDeclaration: 'IRS Tax Return (Form 1120)',
+    socialSecurityCert: 'N/A',
+  },
+};
