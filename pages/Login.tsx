@@ -8,6 +8,9 @@ interface LoginProps {
 
 import sonilsLogoBase64 from "../components/image/SONILS_login.png";
 
+import sonilsLogoBack64 from "../components/image/solocompliance.png";
+
+
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,7 +31,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       <div
         className="hidden lg:flex w-1/2 bg-cover bg-center"
         style={{          
-          backgroundImage: "url('../components/image/solocompliance.png')",,
+          backgroundImage: `url(${sonilsLogoBack64})`,
         }}
       >
         <div className="bg-primary/90 w-full h-full flex flex-col justify-between p-12 text-white">
