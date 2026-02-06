@@ -5,7 +5,8 @@ import { Notification, User } from "../types";
 import { AdminIcon } from "./icons/AdminIcon";
 import { LogoutIcon } from "./icons/LogoutIcon";
 import { MenuIcon } from "./icons/MenuIcon";
-import headerlogo from "../../components/image/SONILS_login.png";
+import headerlogo from "./components/image/SONILS_login.png";
+
 const pageTitles: Record<string, string> = {
   "menu-dashboard": "Painel Principal",
   dashboard: "Dashboard de Análise",
