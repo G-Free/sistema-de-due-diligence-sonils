@@ -28,7 +28,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       <div
         className="hidden lg:flex w-1/2 bg-cover bg-center"
         style={{
-          backgroundImage: `url('../components/image/solocompliance.png')`,
+          backgroundImage: `new URL("../components/image/solocompliance.png", import.meta.url).href`,
         }}
       >
         <div className="bg-primary/90 w-full h-full flex flex-col justify-between p-12 text-white">
