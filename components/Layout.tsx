@@ -5,7 +5,7 @@ import { Notification, User } from "../types";
 import { AdminIcon } from "./icons/AdminIcon";
 import { LogoutIcon } from "./icons/LogoutIcon";
 import { MenuIcon } from "./icons/MenuIcon";
-
+import headerlogo from "../../components/image/SONILS_login.png";
 const pageTitles: Record<string, string> = {
   "menu-dashboard": "Painel Principal",
   dashboard: "Dashboard de Análise",
@@ -89,7 +89,7 @@ const Header: React.FC<{
       <div className="flex items-center gap-6">
         <div className="h-12 w-32  flex items-center justify-center rounded-lg">
           <img
-            src="../../components/image/SONILS_login.png"
+            src={headerlogo}
             alt="SONILS Logo"
             className="h-8"
           />
