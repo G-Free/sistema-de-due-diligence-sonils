@@ -40,7 +40,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </div>
           <div>
             <h1 className="text-4xl font-bold leading-tight">
-              Plataforma Integrada de Due Diligence
+              Plataforma Sopliance
             </h1>
             <p className="mt-4 text-lg text-gray-200">
               Gestão de Risco de Terceiros, simplificada e inteligente.
